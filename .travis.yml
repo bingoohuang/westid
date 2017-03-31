@@ -1,0 +1,11 @@
+language: java
+jdk: oraclejdk8
+#after_success:
+#- mvn clean test jacoco:report coveralls:report
+addons:
+  sonarqube:
+    token:
+      secure: "Nf2tsoT4glVfVXSsD+38Ok7iEIzoXMBFQ7wwlBIOeplk4LLq1F9w8WAhYoAbwNqP61mixZDjpdakH1tBhHgh313mz0KkMEq7KmdTk77FoCjJD+Zb3RoR2Z/Pk+5mhYWZOXkUkV2dIFBEOc9WgpoiW8itJ/uqUgPgatKZz4VpbFTT//aqbDCFRUjy5UvWIKdHJmzlkBX2yuhELUzWTPWPy8ssT9MrhWP06ea5WWuUr7tDSAEGSo06yE1U8OeGD5lMgj4YI5p2mGaTVJe1j+C706GA0LP2TF4OgPORoHsBQTcQYc0itdJnptoC0dOBIB3C4SI5oD2m7zdNpl02B9famYmIj/6TWRPaIFQEvFWOO727lzxlEwcv5lhrsE27UvrOEF/BQCFz22BP8VmJLvtfz+0epKrpCpX14VPbux6u1kNwa+ztw8rHuW8ezef0pZpPLZTjjTzIipeD/OQKRqquBGZv7hx5pSVRRJUOuQ9HfqM92NKdNZKojDdsVLfDzjTW5+ejmpt44g3exFecS48CJp4WOlbJaRd1hrYgovT+Fq7vDwZfeTKolOqKu3h6TINWFVPedyBtMkEHhonTb0I9hjA/tipqOhExfhx11o+nRaw5lZW93W4+BUK/Z62p/pdUVte+yxWfBWpAbZ+Zf6Q3jxojZnZUKJwr9VrleHUJnic="
+script:
+  # the following command line builds the project, runs the tests with coverage and then execute the SonarQube analysis
+  - mvn clean test jacoco:report coveralls:report install sonar:sonar
