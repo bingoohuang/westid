@@ -8,6 +8,9 @@ import lombok.val;
 
 @Slf4j
 public class WestId {
+    private WestId() {
+    }
+
     public static final long EPOCH = 1490346283706L; // 1490346283706L: 2017-03-24T17:04:43.706+08:00
     @Getter
     private static WestIdGenerator westIdGenerator = createIdGenerator();

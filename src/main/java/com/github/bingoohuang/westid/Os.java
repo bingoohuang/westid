@@ -16,6 +16,9 @@ import java.util.Scanner;
  * Created by bingoohuang on 2017/3/24.
  */
 public class Os {
+    private Os() {
+    }
+
     public static final long IP_LONG = Os.getIpByOshi();
     public static final String IP_STRING = Os.toString(IP_LONG);
     public static final OperatingSystem OPERATING_SYSTEM = new SystemInfo().getOperatingSystem();
@@ -62,7 +65,9 @@ public class Os {
             val inetAddresses = networkIF.getNetworkInterface().getInetAddresses();
             while (inetAddresses.hasMoreElements()) {
                 val inetAddress = inetAddresses.nextElement();
-                if (inetAddress.isLoopbackAddress()) continue;
+                if (inetAddress.isLoopbackAddress()) {
+                    continue;
+                }
                 if (inetAddress instanceof Inet4Address) {
                     return Os.getIp(inetAddress);
                 }
@@ -90,8 +95,12 @@ public class Os {
             val en2 = nextElement.getInetAddresses();
             for (; en2.hasMoreElements(); ) {
                 val addr = en2.nextElement();
-                if (addr.isLoopbackAddress()) continue;
-                if (addr instanceof Inet4Address) return addr;
+                if (addr.isLoopbackAddress()) {
+                    continue;
+                }
+                if (addr instanceof Inet4Address) {
+                    return addr;
+                }
             }
         }
         return InetAddress.getLocalHost();
@@ -102,7 +111,7 @@ public class Os {
     private static String getHostname() {
         try {
             return StringUtils.trim(execReadToString("hostname"));
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             // ignore
         }
 

@@ -45,10 +45,14 @@ public class RedisWorkerIdAssigner implements WorkerIdAssigner {
     @SneakyThrows
     private Integer tryReuseWorkerId() {
         val pidWorkerIds = jedis.lrange(PREFIX_PID, 0, -1);
-        if (pidWorkerIds.size() == 0) return null;
+        if (pidWorkerIds.size() == 0) {
+            return null;
+        }
 
         boolean locked = jedis.setnx(PREFIX_LOK, Os.PID_STRING) == 1;
-        if (!locked) return null;
+        if (!locked) {
+            return null;
+        }
         @Cleanup val i = new Closeable() {
             @Override
             public void close() throws IOException {
@@ -57,7 +61,9 @@ public class RedisWorkerIdAssigner implements WorkerIdAssigner {
         };
 
         val workerId = findUsableWorkerId(pidWorkerIds);
-        if (workerId == null) return null;
+        if (workerId == null) {
+            return null;
+        }
 
         jedis.set(PREFIX_USE + workerId, Os.PID_STRING + "x" + Os.IP_STRING + "x" + Os.HOSTNAME);
         return Integer.parseInt(workerId);
@@ -69,7 +75,9 @@ public class RedisWorkerIdAssigner implements WorkerIdAssigner {
             val pidAndWorkerId = pidWorkerId.split("x");
             int pid = Integer.parseInt(pidAndWorkerId[0]);
             val found = Os.OPERATING_SYSTEM.getProcess(pid);
-            if (found != null) continue;
+            if (found != null) {
+                continue;
+            }
 
             jedis.lrem(PREFIX_PID, 0, pidWorkerId);
             if (lastWorkerId != null) { // keep last one for reuse
@@ -86,7 +94,9 @@ public class RedisWorkerIdAssigner implements WorkerIdAssigner {
 
         for (long i = 0; i <= westIdConfig.getMaxWorkerId(); ++i) {
             val found = jedis.setnx(PREFIX_USE + i, value) == 1;
-            if (found) return (int) i;
+            if (found) {
+                return (int) i;
+            }
         }
 
         return null;

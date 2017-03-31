@@ -16,6 +16,9 @@ import com.github.bingoohuang.westid.WestIdGenerator;
  * 则可以在保证参数随机的同时生成唯一的临时二维码。
  */
 public class QrSceneId {
+    private QrSceneId() {
+    }
+
     private static final WestIdConfig ID_CONFIG = new WestIdConfig(WestId.EPOCH, 5, 5);
     private static final WestIdGenerator ID_GENERATOR = new WestIdGenerator(ID_CONFIG, WestId.bindWorkerId(ID_CONFIG));
 
