@@ -2,6 +2,7 @@ package com.github.bingoohuang.westid.workerid;
 
 import com.github.bingoohuang.westid.Os;
 import com.github.bingoohuang.westid.WestIdConfig;
+import com.github.bingoohuang.westid.WestIdException;
 import com.github.bingoohuang.westid.WorkerIdAssigner;
 import lombok.AllArgsConstructor;
 import lombok.Cleanup;
@@ -28,12 +29,9 @@ import java.util.List;
  */
 @AllArgsConstructor
 public class RedisWorkerIdAssigner implements WorkerIdAssigner {
-    // workerId:pid:{ip}=[{pid}x{workerId},{pid}x{workerId}]
-    public static final String PREFIX_PID = "workerId:pid:" + Os.IP_STRING;
-    // workerId:lok:{ip}={pid}
-    public static final String PREFIX_LOK = "workerId:lok:" + Os.IP_STRING;
-    // workerId:use:{workerId}={pid}x{ip}x{hostname}
-    public static final String PREFIX_USE = "workerId:use:";
+    private static final String PREFIX_PID = "workerId:pid:" + Os.IP_STRING;
+    private static final String PREFIX_LOK = "workerId:lok:" + Os.IP_STRING;
+    private static final String PREFIX_USE = "workerId:use:";
 
     private final JedisCommands jedis;
 
@@ -104,6 +102,7 @@ public class RedisWorkerIdAssigner implements WorkerIdAssigner {
 
     private void addShutdownHook(final long workerId) {
         Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
             public void run() {
                 try {
                     jedis.del(PREFIX_USE + workerId);
@@ -123,7 +122,7 @@ public class RedisWorkerIdAssigner implements WorkerIdAssigner {
             workerId = findAvailableWorkerId(westIdConfig);
         }
         if (workerId == null) {
-            throw new RuntimeException("workerId used up");
+            throw new WestIdException("workerId used up");
         }
 
         jedis.lpush(PREFIX_PID, Os.PID_STRING + "x" + workerId);

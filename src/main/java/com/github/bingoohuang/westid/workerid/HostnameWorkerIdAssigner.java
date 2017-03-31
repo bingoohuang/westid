@@ -2,6 +2,7 @@ package com.github.bingoohuang.westid.workerid;
 
 import com.github.bingoohuang.westid.Os;
 import com.github.bingoohuang.westid.WestIdConfig;
+import com.github.bingoohuang.westid.WestIdException;
 import com.github.bingoohuang.westid.WorkerIdAssigner;
 import lombok.val;
 
@@ -21,7 +22,7 @@ public class HostnameWorkerIdAssigner implements WorkerIdAssigner {
             return Integer.parseInt(matcher.group());
         }
 
-        throw new RuntimeException("unable to parse workerId from hostname:" + hostname);
+        throw new WestIdException("unable to parse workerId from hostname:" + hostname);
     }
 
     @Override

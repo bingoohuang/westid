@@ -2,6 +2,7 @@ package com.github.bingoohuang.westid.workerid;
 
 import com.github.bingoohuang.westid.Os;
 import com.github.bingoohuang.westid.WestIdConfig;
+import com.github.bingoohuang.westid.WestIdException;
 import com.github.bingoohuang.westid.WorkerIdAssigner;
 import com.github.bingoohuang.westid.workerid.db.DefaultWorkerIdAssignDao;
 import com.github.bingoohuang.westid.workerid.db.WorkerIdAssignDao;
@@ -127,7 +128,7 @@ public class DbWorkerIdAssigner implements WorkerIdAssigner {
             return id;
         }
 
-        throw new RuntimeException("workerId used up");
+        throw new WestIdException("workerId used up");
     }
 
 }

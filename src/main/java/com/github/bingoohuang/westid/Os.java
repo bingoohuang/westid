@@ -74,7 +74,7 @@ public class Os {
             }
         }
 
-        throw new RuntimeException("unable to find ip");
+        throw new WestIdException("unable to find ip");
     }
 
 
@@ -84,7 +84,7 @@ public class Os {
             return Os.getIp(inetAddress);
         }
 
-        throw new RuntimeException("unable to get local host");
+        throw new WestIdException("unable to get local host");
     }
 
     @SneakyThrows
