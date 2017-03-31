@@ -2,6 +2,7 @@ package com.github.bingoohuang.westid;
 
 import lombok.Cleanup;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import oshi.SystemInfo;
@@ -15,6 +16,7 @@ import java.util.Scanner;
 /**
  * Created by bingoohuang on 2017/3/24.
  */
+@Slf4j
 public class Os {
     private Os() {
     }
@@ -93,7 +95,7 @@ public class Os {
         while (en.hasMoreElements()) {
             val nextElement = en.nextElement();
             val en2 = nextElement.getInetAddresses();
-            for (; en2.hasMoreElements(); ) {
+            while (en2.hasMoreElements()) {
                 val addr = en2.nextElement();
                 if (addr.isLoopbackAddress()) {
                     continue;
@@ -113,6 +115,7 @@ public class Os {
             return StringUtils.trim(execReadToString("hostname"));
         } catch (Exception ex) {
             // ignore
+            log.warn("execute hostname error", ex);
         }
 
         return InetAddress.getLocalHost().getHostName();
