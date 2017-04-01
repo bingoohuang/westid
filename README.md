@@ -152,7 +152,7 @@ int qrSceneId = QrSceneId.next();
 ```
 
 
-# Sonarqub
+# Sonarqube integrated
 ```fish
 set -x http_proxy http://127.0.0.1:9999
 set -x https_proxy http://127.0.0.1:9999
