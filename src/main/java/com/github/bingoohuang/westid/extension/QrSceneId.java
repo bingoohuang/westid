@@ -3,6 +3,7 @@ package com.github.bingoohuang.westid.extension;
 import com.github.bingoohuang.westid.WestId;
 import com.github.bingoohuang.westid.WestIdConfig;
 import com.github.bingoohuang.westid.WestIdGenerator;
+import lombok.experimental.UtilityClass;
 
 /**
  * 32位正整形生成
@@ -15,14 +16,12 @@ import com.github.bingoohuang.westid.WestIdGenerator;
  * 配合微信临时二维码的过期时间设置, 若使二维码在生成的随机参数发生碰撞前(即34.95分钟以内)失效,
  * 则可以在保证参数随机的同时生成唯一的临时二维码。
  */
+@UtilityClass
 public class QrSceneId {
-    private QrSceneId() {
-    }
+    private final WestIdConfig ID_CONFIG = new WestIdConfig(WestId.EPOCH, 5, 5);
+    private final WestIdGenerator ID_GENERATOR = new WestIdGenerator(ID_CONFIG, WestId.bindWorkerId(ID_CONFIG));
 
-    private static final WestIdConfig ID_CONFIG = new WestIdConfig(WestId.EPOCH, 5, 5);
-    private static final WestIdGenerator ID_GENERATOR = new WestIdGenerator(ID_CONFIG, WestId.bindWorkerId(ID_CONFIG));
-
-    public static int next() {
+    public int next() {
         int next = (int) ID_GENERATOR.next();
         return (next << 1) >>> 1;
     }

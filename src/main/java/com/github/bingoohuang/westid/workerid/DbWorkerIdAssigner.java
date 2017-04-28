@@ -8,6 +8,7 @@ import com.github.bingoohuang.westid.workerid.db.DefaultWorkerIdAssignDao;
 import com.github.bingoohuang.westid.workerid.db.WorkerIdAssignDao;
 import com.github.bingoohuang.westid.workerid.db.WorkerIdBean;
 import com.google.common.collect.Lists;
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.n3r.eql.eqler.EqlerFactory;
@@ -16,15 +17,12 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 
+@AllArgsConstructor
 public class DbWorkerIdAssigner implements WorkerIdAssigner {
     private final WorkerIdAssignDao dao;
 
     public DbWorkerIdAssigner() {
         this(EqlerFactory.getEqler(DefaultWorkerIdAssignDao.class));
-    }
-
-    public DbWorkerIdAssigner(WorkerIdAssignDao dao) {
-        this.dao = dao;
     }
 
     private Integer createNewWorkerId(WorkerIdAssignDao dao, WestIdConfig westIdConfig,

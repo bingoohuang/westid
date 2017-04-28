@@ -114,7 +114,6 @@ public class RedisWorkerIdAssigner implements WorkerIdAssigner {
         });
     }
 
-
     @Override
     public int assignWorkerId(WestIdConfig westIdConfig) {
         Integer workerId = tryReuseWorkerId();

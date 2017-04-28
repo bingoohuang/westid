@@ -13,5 +13,4 @@ public interface DefaultWorkerIdAssignDao extends WorkerIdAssignDao {
                     "hostname varchar(60) not null, " +
                     "create_time timestamp not null)"})
     void createTable();
-
 }

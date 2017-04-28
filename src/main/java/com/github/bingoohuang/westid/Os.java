@@ -2,6 +2,7 @@ package com.github.bingoohuang.westid;
 
 import lombok.Cleanup;
 import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -17,16 +18,14 @@ import java.util.Scanner;
  * Created by bingoohuang on 2017/3/24.
  */
 @Slf4j
+@UtilityClass
 public class Os {
-    private Os() {
-    }
-
-    public static final long IP_LONG = Os.getIpByOshi();
-    public static final String IP_STRING = Os.toString(IP_LONG);
-    public static final OperatingSystem OPERATING_SYSTEM = new SystemInfo().getOperatingSystem();
-    public static final int PID_INT = OPERATING_SYSTEM.getProcessId();
-    public static final String PID_STRING = String.valueOf(PID_INT);
-    public static final String HOSTNAME = getHostname();
+    public final long IP_LONG = Os.getIpByOshi();
+    public final String IP_STRING = Os.toString(IP_LONG);
+    public final OperatingSystem OPERATING_SYSTEM = new SystemInfo().getOperatingSystem();
+    public final int PID_INT = OPERATING_SYSTEM.getProcessId();
+    public final String PID_STRING = String.valueOf(PID_INT);
+    public final String HOSTNAME = getHostname();
 
     /**
      * Returns the 32bit dotted format of the provided long ip.
@@ -35,7 +34,7 @@ public class Os {
      * @return the 32bit dotted format of <code>ip</code>
      * @throws IllegalArgumentException if <code>ip</code> is invalid
      */
-    public static String toString(long ip) {
+    public String toString(long ip) {
         // if ip is bigger than 255.255.255.255 or smaller than 0.0.0.0
         if (ip > 4294967295l || ip < 0) {
             throw new IllegalArgumentException("invalid ip");
@@ -52,7 +51,7 @@ public class Os {
         return ipAddress.toString();
     }
 
-    public static long getIp(InetAddress inetAddress) {
+    public long getIp(InetAddress inetAddress) {
         byte[] addr = inetAddress.getAddress();
         return ((addr[0] & 0xFFL) << (3 * 8))
                 + ((addr[1] & 0xFFL) << (2 * 8))
@@ -61,7 +60,7 @@ public class Os {
     }
 
 
-    private static long getIpByOshi() {
+    private long getIpByOshi() {
         val systemInfo = new SystemInfo();
         for (val networkIF : systemInfo.getHardware().getNetworkIFs()) {
             val inetAddresses = networkIF.getNetworkInterface().getInetAddresses();
@@ -80,7 +79,7 @@ public class Os {
     }
 
 
-    public static long getIp() {
+    public long getIp() {
         val inetAddress = getFirstNonLoopbackAddress();
         if (inetAddress != null) {
             return Os.getIp(inetAddress);
@@ -90,7 +89,7 @@ public class Os {
     }
 
     @SneakyThrows
-    public static InetAddress getFirstNonLoopbackAddress() {
+    public InetAddress getFirstNonLoopbackAddress() {
         val en = NetworkInterface.getNetworkInterfaces();
         while (en.hasMoreElements()) {
             val nextElement = en.nextElement();
@@ -110,7 +109,7 @@ public class Os {
 
 
     @SneakyThrows
-    private static String getHostname() {
+    private String getHostname() {
         try {
             return StringUtils.trim(execReadToString("hostname"));
         } catch (Exception ex) {
@@ -122,7 +121,7 @@ public class Os {
     }
 
     @SneakyThrows
-    public static String execReadToString(String execCommand) {
+    public String execReadToString(String execCommand) {
         val proc = Runtime.getRuntime().exec(execCommand);
         @Cleanup val stream = proc.getInputStream();
         @Cleanup val scanner = new Scanner(stream).useDelimiter("\\A");
