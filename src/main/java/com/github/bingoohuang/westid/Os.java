@@ -6,9 +6,8 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
-import oshi.SystemInfo;
-import oshi.software.os.OperatingSystem;
 
+import java.lang.management.ManagementFactory;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -20,12 +19,54 @@ import java.util.Scanner;
 @Slf4j
 @UtilityClass
 public class Os {
-    public final long IP_LONG = Os.getIpByOshi();
-    public final String IP_STRING = Os.toString(IP_LONG);
-    public final OperatingSystem OPERATING_SYSTEM = new SystemInfo().getOperatingSystem();
-    public final int PID_INT = OPERATING_SYSTEM.getProcessId();
-    public final String PID_STRING = String.valueOf(PID_INT);
-    public final String HOSTNAME = getHostname();
+    public static final long IP_LONG = getIp();
+    public static final String IP_STRING = Os.toString(IP_LONG);
+    public static final int PID_INT = getProcessId(0);
+    public static final String PID_STRING = String.valueOf(PID_INT);
+    public static final String HOSTNAME = getHostname();
+
+    private static int getProcessId(final int fallback) {
+        // Note: may fail in some JVM implementations
+        // therefore fallback has to be provided
+
+        // something like '<pid>@<hostname>', at least in SUN / Oracle JVMs
+        final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+        final int index = jvmName.indexOf('@');
+
+        if (index < 1) {
+            // part before '@' empty (index = 0) / '@' not found (index = -1)
+            return fallback;
+        }
+
+        try {
+            return Integer.parseInt(jvmName.substring(0, index));
+        } catch (NumberFormatException e) {
+            // ignore
+        }
+        return fallback;
+    }
+
+    public static boolean isStillAlive(int pid) {
+        String os = System.getProperty("os.name").toLowerCase();
+        String command;
+        if (os.indexOf("win") >= 0) {
+            log.debug("Check alive Windows mode. Pid: [{}]", pid);
+            command = "cmd /c tasklist /FI \"PID eq " + pid + "\"";
+        } else if (os.indexOf("nix") >= 0 || os.indexOf("nux") >= 0 || os.indexOf("mac") >= 0) {
+            log.debug("Check alive Linux/Unix mode. Pid: [{}]", pid);
+            command = "ps -p " + pid;
+        } else {
+            log.warn("Unsupported OS: Check alive for Pid: [{}] return false", pid);
+            return false;
+        }
+        return isProcessIdRunning(pid, command); // call generic implementation
+    }
+
+    private boolean isProcessIdRunning(int pid, String command) {
+        log.debug("Command [{}]", command);
+        String result = execReadToString(command);
+        return result.contains(" " + pid + " ");
+    }
 
     /**
      * Returns the 32bit dotted format of the provided long ip.
@@ -57,25 +98,6 @@ public class Os {
                 + ((addr[1] & 0xFFL) << (2 * 8))
                 + ((addr[2] & 0xFFL) << (1 * 8))
                 + (addr[3] & 0xFFL);
-    }
-
-
-    private long getIpByOshi() {
-        val systemInfo = new SystemInfo();
-        for (val networkIF : systemInfo.getHardware().getNetworkIFs()) {
-            val inetAddresses = networkIF.getNetworkInterface().getInetAddresses();
-            while (inetAddresses.hasMoreElements()) {
-                val inetAddress = inetAddresses.nextElement();
-                if (inetAddress.isLoopbackAddress()) {
-                    continue;
-                }
-                if (inetAddress instanceof Inet4Address) {
-                    return Os.getIp(inetAddress);
-                }
-            }
-        }
-
-        throw new WestIdException("unable to find ip");
     }
 
 

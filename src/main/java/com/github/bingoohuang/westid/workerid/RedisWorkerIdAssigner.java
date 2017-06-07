@@ -72,8 +72,8 @@ public class RedisWorkerIdAssigner implements WorkerIdAssigner {
         for (val pidWorkerId : pidWorkerIds) {
             val pidAndWorkerId = pidWorkerId.split("x");
             int pid = Integer.parseInt(pidAndWorkerId[0]);
-            val found = Os.OPERATING_SYSTEM.getProcess(pid);
-            if (found != null) {
+            val stillAllive = Os.isStillAlive(pid);
+            if (stillAllive) {
                 continue;
             }
 

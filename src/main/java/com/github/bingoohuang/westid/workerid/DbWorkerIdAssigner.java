@@ -78,8 +78,8 @@ public class DbWorkerIdAssigner implements WorkerIdAssigner {
     private Integer reuseWorkerId(WorkerIdAssignDao dao) {
         WorkerIdBean workerIdBean = null;
         for (val bean : dao.queryWorkerIds(Os.IP_STRING)) {
-            val process = Os.OPERATING_SYSTEM.getProcess(bean.getPid());
-            if (process != null) {
+            val processStillAlive = Os.isStillAlive(bean.getPid());
+            if (processStillAlive) {
                 continue;
             }
 
