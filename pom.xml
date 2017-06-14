@@ -61,7 +61,7 @@
         <dependency>
             <groupId>com.github.bingoohuang</groupId>
             <artifactId>eql</artifactId>
-            <version>0.0.82</version>
+            <version>0.0.86</version>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -70,7 +70,7 @@
             <version>1.4.193</version>
             <optional>true</optional>
         </dependency>
-<!--        <dependency>
+        <!--<dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
             <version>4.4.0</version>
