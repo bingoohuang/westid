@@ -42,8 +42,8 @@ public class WestIdGenerator {
         long currentMillis = currentTimeMillis();
         Preconditions.checkState(lastMillis <= currentMillis,
                 "Clock is moving backwards, " +
-                        "last time is %d milliseconds, " +
-                        "current time is %d milliseconds", lastMillis, currentMillis);
+                        "last time is %s milliseconds, " +
+                        "current time is %s milliseconds", lastMillis, currentMillis);
 
         if (lastMillis == currentMillis) {
             sequence = ++sequence & sequenceMask;
