@@ -132,7 +132,7 @@ public class WestIdTest {
     static class EasyTimeWorker extends WestIdGenerator {
         public Callable<Long> timeMaker = new Callable<Long>() {
             @Override
-            public Long call() throws Exception {
+            public Long call() {
                 return System.currentTimeMillis();
             }
         };
@@ -174,7 +174,7 @@ public class WestIdTest {
         val iter = Lists.newArrayList(2L, 2L, 3L).iterator();
         wakingIdWorker.timeMaker = new Callable<Long>() {
             @Override
-            public Long call() throws Exception {
+            public Long call() {
                 return iter.next();
             }
         };
@@ -195,9 +195,7 @@ public class WestIdTest {
         int n = 1000000;
         for (int i = 0; i < 1000000; ++i) {
             long id = WestId.next();
-            if (!set.contains(id)) {
-                set.add(id);
-            }
+            set.add(id);
         }
 
         assertThat(set.size()).isEqualTo(n);

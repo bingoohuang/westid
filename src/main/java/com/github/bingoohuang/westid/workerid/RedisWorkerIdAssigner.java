@@ -53,7 +53,7 @@ public class RedisWorkerIdAssigner implements WorkerIdAssigner {
         }
         @Cleanup val i = new Closeable() {
             @Override
-            public void close() throws IOException {
+            public void close() {
                 jedis.del(PREFIX_LOK);
             }
         };
