@@ -61,8 +61,9 @@ public class WestId {
         return binderClass.newInstance().assignWorkerId(westIdConfig);
     }
 
+    @SuppressWarnings("unchecked")
     private Class<? extends WorkerIdAssigner> findBinderClass() {
-        val className = "com.github.bingoohuang.westid.StaticWorkerIdBinder";
+        val className = "com.github.bingoohuang.westid.";
         try {
             return (Class<? extends WorkerIdAssigner>) Class.forName(className);
         } catch (ClassNotFoundException e) {

@@ -1,6 +1,7 @@
 package com.github.bingoohuang.westid.workerid;
 
 import com.github.bingoohuang.westid.Os;
+import com.github.bingoohuang.westid.Pid;
 import com.github.bingoohuang.westid.WestIdConfig;
 import com.github.bingoohuang.westid.WestIdException;
 import com.github.bingoohuang.westid.WorkerIdAssigner;
@@ -15,17 +16,13 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * 从Redis服务器中获取可用的workerId.
- * 流程：
- * 1) 尝试重用为当前IP主机分配过的workerId
- * 1.1) 读取workerId:pid:{ip}=[{pid}x{workerId},{pid}x{workerId}]
- * 1.2) 加锁（workerId:lok:{ip}={pid}）操作，逐项检查pid的进程是否存在，存在则跳过
- * 1.3) 不存在，则从workerId:pid:{ip}删除，并且删除除最后一个的workerId:use:{workerId}
- * 1.4) 有不存在的情况下，返回最后一个workerId，并且改写workerId:use:{workerId}={pid}x{ip}x{hostname}
- * 2) 没有可重用时，查找新的可用workerId
- * 2.1) 遍历workerId:use:{0~maxWorkerId}，寻找可以写入的key
- * 2.2) 找到时，返回
- * 3）写入redis list workerId:pid:{ip}=[{pid}x{workerId},{pid}x{workerId}]
+ * 从Redis服务器中获取可用的workerId. 流程： 1) 尝试重用为当前IP主机分配过的workerId 1.1)
+ * 读取workerId:pid:{ip}=[{pid}x{workerId},{pid}x{workerId}] 1.2)
+ * 加锁（workerId:lok:{ip}={pid}）操作，逐项检查pid的进程是否存在，存在则跳过 1.3)
+ * 不存在，则从workerId:pid:{ip}删除，并且删除除最后一个的workerId:use:{workerId} 1.4)
+ * 有不存在的情况下，返回最后一个workerId，并且改写workerId:use:{workerId}={pid}x{ip}x{hostname} 2)
+ * 没有可重用时，查找新的可用workerId 2.1) 遍历workerId:use:{0~maxWorkerId}，寻找可以写入的key 2.2)
+ * 找到时，返回 3）写入redis list workerId:pid:{ip}=[{pid}x{workerId},{pid}x{workerId}]
  */
 @AllArgsConstructor
 public class RedisWorkerIdAssigner implements WorkerIdAssigner {
@@ -47,11 +44,12 @@ public class RedisWorkerIdAssigner implements WorkerIdAssigner {
             return null;
         }
 
-        boolean locked = jedis.setnx(PREFIX_LOK, Os.PID_STRING) == 1;
+        boolean locked = jedis.setnx(PREFIX_LOK, Pid.getPid() + "") == 1;
         if (!locked) {
             return null;
         }
-        @Cleanup val i = new Closeable() {
+        @Cleanup
+        val i = new Closeable() {
             @Override
             public void close() {
                 jedis.del(PREFIX_LOK);
@@ -63,7 +61,7 @@ public class RedisWorkerIdAssigner implements WorkerIdAssigner {
             return null;
         }
 
-        jedis.set(PREFIX_USE + workerId, Os.PID_STRING + "x" + Os.IP_STRING + "x" + Os.HOSTNAME);
+        jedis.set(PREFIX_USE + workerId, Pid.getPid() + "x" + Os.IP_STRING + "x" + Os.HOSTNAME);
         return Integer.parseInt(workerId);
     }
 
@@ -72,7 +70,7 @@ public class RedisWorkerIdAssigner implements WorkerIdAssigner {
         for (val pidWorkerId : pidWorkerIds) {
             val pidAndWorkerId = pidWorkerId.split("x");
             int pid = Integer.parseInt(pidAndWorkerId[0]);
-            val stillAllive = Os.isStillAlive(pid);
+            val stillAllive = Pid.isStillAlive(pid);
             if (stillAllive) {
                 continue;
             }
@@ -88,7 +86,7 @@ public class RedisWorkerIdAssigner implements WorkerIdAssigner {
     }
 
     private Integer findAvailableWorkerId(WestIdConfig westIdConfig) {
-        val value = Os.PID_STRING + "x" + Os.IP_STRING + "x" + Os.HOSTNAME;
+        val value = Pid.getPid() + "x" + Os.IP_STRING + "x" + Os.HOSTNAME;
 
         for (long i = 0; i <= westIdConfig.getMaxWorkerId(); ++i) {
             val found = jedis.setnx(PREFIX_USE + i, value) == 1;
@@ -106,7 +104,7 @@ public class RedisWorkerIdAssigner implements WorkerIdAssigner {
             public void run() {
                 try {
                     jedis.del(PREFIX_USE + workerId);
-                    jedis.lrem(PREFIX_PID, 0, Os.PID_STRING + "x" + workerId);
+                    jedis.lrem(PREFIX_PID, 0, Pid.getPid() + "x" + workerId);
                 } catch (Exception ex) {
                     // ignore all
                 }
@@ -124,7 +122,7 @@ public class RedisWorkerIdAssigner implements WorkerIdAssigner {
             throw new WestIdException("workerId used up");
         }
 
-        jedis.lpush(PREFIX_PID, Os.PID_STRING + "x" + workerId);
+        jedis.lpush(PREFIX_PID, Pid.getPid() + "x" + workerId);
         addShutdownHook(workerId);
 
         return workerId;

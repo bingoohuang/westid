@@ -1,6 +1,7 @@
 package com.github.bingoohuang.westid.workerid;
 
 import com.github.bingoohuang.westid.Os;
+import com.github.bingoohuang.westid.Pid;
 import com.github.bingoohuang.westid.WestIdConfig;
 import com.github.bingoohuang.westid.WestIdException;
 import com.github.bingoohuang.westid.WorkerIdAssigner;
@@ -45,7 +46,7 @@ public class DbWorkerIdAssigner implements WorkerIdAssigner {
     @SneakyThrows
     private boolean addWorkerId(WorkerIdAssignDao dao, Integer usableWorkerId) {
         try {
-            dao.addWorkerId(new WorkerIdBean(usableWorkerId, Os.PID_INT,
+            dao.addWorkerId(new WorkerIdBean(usableWorkerId, Pid.getPid(),
                     Os.IP_STRING, Os.HOSTNAME, null));
             return true;
         } catch (Exception ex) {
@@ -78,7 +79,7 @@ public class DbWorkerIdAssigner implements WorkerIdAssigner {
     private Integer reuseWorkerId(WorkerIdAssignDao dao) {
         WorkerIdBean workerIdBean = null;
         for (val bean : dao.queryWorkerIds(Os.IP_STRING)) {
-            val processStillAlive = Os.isStillAlive(bean.getPid());
+            val processStillAlive = Pid.isStillAlive(bean.getPid());
             if (processStillAlive) {
                 continue;
             }
@@ -89,7 +90,7 @@ public class DbWorkerIdAssigner implements WorkerIdAssigner {
 
         if (workerIdBean != null) {
             int updatedRows = dao.updateWorkerId(workerIdBean.getWorkerId(),
-                    Os.IP_STRING, workerIdBean.getPid(), Os.PID_INT,
+                    Os.IP_STRING, workerIdBean.getPid(), Pid.getPid(),
                     new Timestamp(System.currentTimeMillis()));
             if (updatedRows == 1) {
                 return workerIdBean.getWorkerId();
